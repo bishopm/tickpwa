@@ -3,7 +3,7 @@
     <q-layout-header>
       <q-toolbar color="primary" :glossy="$q.theme === 'mat'" :inverted="$q.theme === 'ios'">
         <q-toolbar-title>
-          Tick
+          <router-link to="/" class="text-white" style="text-decoration:none;">Tick</router-link>
           <div slot="subtitle">tasks and projects</div>
         </q-toolbar-title>
       </q-toolbar>
@@ -16,14 +16,14 @@
         <q-item to="/tasks">
           <q-item-side icon="check_box" color="white"/>
         </q-item>
+        <q-item to="/shopping">
+          <q-item-side icon="shopping_cart" color="white"/>
+        </q-item>
         <q-item to="/projects">
           <q-item-side icon="list" color="white"/>
         </q-item>
-        <q-item to="/lectionary">
-          <q-item-side icon="calendar_today" color="white"/>
-        </q-item>
-        <q-item to="/shopping">
-          <q-item-side icon="shopping_cart" color="white"/>
+        <q-item to="/someday">
+          <q-item-side icon="folder" color="white"/>
         </q-item>
       </q-toolbar>
     </q-layout-footer>

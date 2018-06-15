@@ -75,7 +75,8 @@ module.exports = function (ctx) {
         'openURL'
       ],
       directives: [
-        'Ripple'
+        'Ripple',
+        'TouchHold'
       ],
       // Quasar plugins
       plugins: [

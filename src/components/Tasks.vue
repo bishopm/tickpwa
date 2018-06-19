@@ -7,10 +7,11 @@
           <router-link :to="'/tasks/' + task.id" style="text-decoration:none">{{task.task}}</router-link>
         </q-item-main>
         <q-item-side class="text-right">
-          <q-icon @click.native="taskDone(task.id)" size="24px" class="cursor-pointer" :name="task.done ? 'check_box' : 'check_box_outline_blank'"/>
+          <q-icon @click.native="taskDone(task.id)" size="24px" class="cursor-pointer" :name="task.done === 1 ? 'check_box' : 'check_box_outline_blank'"/>
         </q-item-side>
       </q-item>
     </q-list>
+    <p class="text-center" v-if="!tasks">All current tasks are done!</p>
     <q-btn round color="primary" @click="addTask" class="fixed" icon="add" style="right: 18px; bottom: 68px" />
     <q-modal v-model="modal" position="bottom" :content-css="{padding: '20px'}">
       <p class="text-center caption q-mb-md">Add a new task</p>
@@ -37,6 +38,7 @@
 </template>
 
 <script>
+import saveState from 'vue-save-state'
 export default {
   data () {
     return {
@@ -48,14 +50,21 @@ export default {
       userOptions: []
     }
   },
+  mixins: [saveState],
   methods: {
     addTask () {
       this.modal = true
     },
+    getSaveStateConfig () {
+      return {
+        'cacheKey': 'Tick_Tasks',
+        'saveProperties': ['tasks']
+      }
+    },
     refreshTasks () {
-      this.$axios.get(this.$store.state.hostname + '/tasks')
+      this.$axios.get(this.$store.state.hostname + '/mytasks/' + this.$store.state.user.id)
         .then(response => {
-          this.tasks = response.data
+          this.tasks = response.data.activetasks
         })
         .catch(function (error) {
           console.log(error)
@@ -64,14 +73,13 @@ export default {
     taskDone (id) {
       this.$axios.get(this.$store.state.hostname + '/tasks/' + id + '/toggle')
         .then(response => {
-          this.tasks = response.data
+          this.refreshTasks()
         })
         .catch(function (error) {
           console.log(error)
         })
     },
     submitTask () {
-      console.log(this.users)
       this.$axios.post(this.$store.state.hostname + '/tasks',
         {
           task: this.newt.task,
@@ -90,14 +98,22 @@ export default {
     }
   },
   mounted () {
+    if (!localStorage.getItem('Tick_User')) {
+      this.$router.push({name: 'login'})
+    } else {
+      this.$store.commit('setUser', JSON.parse(localStorage.getItem('Tick_User')))
+    }
+    if (localStorage.getItem('Tick_Toolbar')) {
+      this.$store.commit('setToolbar', JSON.parse(localStorage.getItem('Tick_Toolbar')))
+    }
     this.newt.priority = new Date().toISOString().substr(0, 10)
     this.refreshTasks()
-    this.$axios.get(this.$store.state.hostname + '/projects')
+    this.$axios.get(this.$store.state.hostname + '/myprojects/' + this.$store.state.user.id)
       .then(response => {
-        for (var pkey in response.data) {
+        for (var pkey in response.data.projects) {
           var newitem = {
-            label: response.data[pkey].project,
-            value: response.data[pkey].id
+            label: response.data.projects[pkey].project,
+            value: response.data.projects[pkey].id
           }
           this.projectOptions.push(newitem)
         }
@@ -105,19 +121,15 @@ export default {
       .catch(function (error) {
         console.log(error)
       })
-    this.$axios.get(this.$store.state.hostname + '/users')
-      .then(response => {
-        for (var ukey in response.data) {
-          var newitem = {
-            label: response.data[ukey].username,
-            value: response.data[ukey].id
-          }
-          this.userOptions.push(newitem)
-        }
-      })
-      .catch(function (error) {
-        console.log(error)
-      })
+    this.userOptions.push({ label: this.$store.state.user.username, value: this.$store.state.user.id })
+    for (var ukey in this.$store.state.user.team) {
+      var newitem = {
+        label: this.$store.state.user.team[ukey].username,
+        value: this.$store.state.user.team[ukey].id
+      }
+      this.userOptions.push(newitem)
+      this.users.push(this.$store.state.user.id)
+    }
   }
 
 }

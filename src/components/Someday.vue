@@ -1,6 +1,6 @@
 <template>
   <div class="layout-padding">
-    <h3 class="text-center">Current Projects</h3>
+    <h3 class="text-center">For the slower day ...</h3>
     <q-list no-border striped>
       <q-item v-if="projects" v-for="project in projects" :key="project.id" :to="'/projects/' + project.id">
         <q-item-main class="text-left">
@@ -32,7 +32,6 @@
 </template>
 
 <script>
-import saveState from 'vue-save-state'
 export default {
   data () {
     return {
@@ -43,16 +42,9 @@ export default {
       users: []
     }
   },
-  mixins: [saveState],
   methods: {
     addProject () {
       this.modal = true
-    },
-    getSaveStateConfig () {
-      return {
-        'cacheKey': 'Tick_Projects',
-        'saveProperties': ['projects']
-      }
     },
     submitProject () {
       this.$axios.post(this.$store.state.hostname + '/projects',
@@ -71,9 +63,9 @@ export default {
         })
     },
     refreshProjects () {
-      this.$axios.get(this.$store.state.hostname + '/myprojects/' + this.$store.state.user.id)
+      this.$axios.get(this.$store.state.hostname + '/someday')
         .then(response => {
-          this.projects = response.data.projects
+          this.projects = response.data
         })
         .catch(function (error) {
           console.log(error)
@@ -82,15 +74,19 @@ export default {
   },
   mounted () {
     this.refreshProjects()
-    this.userOptions.push({ label: this.$store.state.user.username, value: this.$store.state.user.id })
-    for (var ukey in this.$store.state.user.team) {
-      var newitem = {
-        label: this.$store.state.user.team[ukey].username,
-        value: this.$store.state.user.team[ukey].id
-      }
-      this.userOptions.push(newitem)
-      this.users.push(this.$store.state.user.id)
-    }
+    this.$axios.get(this.$store.state.hostname + '/users')
+      .then(response => {
+        for (var ukey in response.data) {
+          var newitem = {
+            label: response.data[ukey].username,
+            value: response.data[ukey].id
+          }
+          this.userOptions.push(newitem)
+        }
+      })
+      .catch(function (error) {
+        console.log(error)
+      })
   }
 
 }

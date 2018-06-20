@@ -12,6 +12,9 @@ const store = new Vuex.Store({
     setUser (state, newuser) {
       state.user = newuser
     },
+    setIcon (state, newicon) {
+      state.icon = newicon
+    },
     setToolbar (state, newtoolbar) {
       state.toolbar = newtoolbar
     }

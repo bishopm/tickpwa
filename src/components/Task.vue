@@ -12,7 +12,7 @@
         <q-datetime inverted color="secondary" float-label="Active from" v-model="task.priority" minimal type="date" />
       </q-field>
       <q-field class="q-mt-sm">
-        <q-select v-model="task.project_id" float-label="Project" inverted color="secondary" :options="projectOptions" label="label" track-by="value"/>
+        <q-select v-model="project_id" float-label="Project" inverted color="secondary" :options="projectOptions" label="label" track-by="value"/>
       </q-field>
       <div class="text-center q-my-md">
         <q-btn class="q-mr-md" @click="deleteTask" label="Delete" color="negative"></q-btn>
@@ -29,7 +29,8 @@ export default {
       task: {},
       userOptions: [],
       users: [],
-      projectOptions: []
+      projectOptions: [],
+      project_id: 0
     }
   },
   methods: {
@@ -40,7 +41,7 @@ export default {
       this.$axios.post(this.$store.state.hostname + '/tasks/' + this.$route.params.id,
         {
           task: this.task.task,
-          project_id: this.task.project_id,
+          project_id: this.project_id,
           priority: this.task.priority,
           users: this.users
         })
@@ -83,6 +84,7 @@ export default {
     this.$axios.get(this.$store.state.hostname + '/tasks/' + this.$route.params.id)
       .then(response => {
         this.task = response.data
+        this.project_id = this.task.project_id
         for (var uu in this.task.users) {
           this.users.push(this.task.users[uu].id)
         }

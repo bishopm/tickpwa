@@ -6,7 +6,7 @@ export default [
     children: [
       { name: 'home', path: '/', component: () => import('components/Tasks'), meta: {auth: true} },
       { name: 'login', path: '/login', component: () => import('components/Login'), meta: {auth: false} },
-      { name: 'projects', path: '/projects', component: () => import('components/Projects'), meta: {auth: true} },
+      { name: 'projects', path: '/allprojects', component: () => import('components/Projects'), meta: {auth: true} },
       { name: 'project', path: '/projects/:id', component: () => import('components/Project'), meta: {auth: true} },
       { name: 'tasks', path: '/tasks', component: () => import('components/Tasks'), meta: {auth: true} },
       { name: 'task', path: '/tasks/:id', component: () => import('components/Task'), meta: {auth: true} },

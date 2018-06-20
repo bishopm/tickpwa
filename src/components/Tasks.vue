@@ -104,7 +104,10 @@ export default {
       this.$store.commit('setUser', JSON.parse(localStorage.getItem('Tick_User')))
     }
     if (localStorage.getItem('Tick_Toolbar')) {
-      this.$store.commit('setToolbar', JSON.parse(localStorage.getItem('Tick_Toolbar')))
+      this.$store.commit('setToolbar', localStorage.getItem('Tick_Toolbar'))
+    }
+    if (localStorage.getItem('Tick_Icon')) {
+      this.$store.commit('setIcon', localStorage.getItem('Tick_Icon'))
     }
     this.newt.priority = new Date().toISOString().substr(0, 10)
     this.refreshTasks()

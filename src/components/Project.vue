@@ -5,14 +5,14 @@
       <q-tab slot="title" name="edit" label="Edit project" icon="edit" />
       <q-tab-pane name="show">
         <h3 class="text-center">{{project.project}}</h3>
-        <div class="text-justify"><small>{{project.description}}</small></div>
+        <div class="text-justify q-px-md"><small>{{project.description}}</small></div>
         <q-list no-border>
-          <q-item v-if="project.tasks" v-for="task in project.tasks" :key="task.id">
+          <q-item v-if="tasks" v-for="task in tasks" :key="task.id">
             <q-item-main class="text-left">
               <router-link :to="'/tasks/' + task.id" style="text-decoration:none">{{task.task}}</router-link>
             </q-item-main>
             <q-item-side class="text-right">
-              <q-icon @click.native="taskDone(task.id)" size="24px" class="cursor-pointer" :name="task.done ? 'check_box' : 'check_box_outline_blank'"/>
+              <q-icon @click.native="taskDone(task.id)" size="24px" class="cursor-pointer" :name="task.done === 1 ? 'check_box' : 'check_box_outline_blank'"/>
             </q-item-side>
           </q-item>
         </q-list>
@@ -30,7 +30,7 @@
             <q-select v-model="users" multiple float-label="Who can see this project?" inverted color="secondary" :options="userOptions" label="label" track-by="value"/>
           </q-field>
           <q-field class="q-mt-sm">
-            <q-select v-model="project.inactive" float-label="Project status" inverted :options="activeOptions" color="secondary" label="label" track-by="value"/>
+            <q-select v-model="inactive" float-label="Project status" inverted :options="activeOptions" color="secondary" label="label" track-by="value"/>
           </q-field>
           <div class="text-center q-my-md">
             <q-btn class="q-mr-md" label="Delete" color="negative"></q-btn>
@@ -65,10 +65,12 @@ export default {
   data () {
     return {
       project: {},
+      tasks: [],
       newt: {},
       userOptions: [],
       activeOptions: [{ label: 'Active', value: 0 }, { label: 'Inactive', value: 1 }],
       users: [],
+      inactive: 0,
       modal: false
     }
   },
@@ -108,7 +110,7 @@ export default {
           project: this.project.project,
           description: this.project.description,
           users: this.users,
-          inactive: this.project.inactive
+          inactive: this.inactive
         })
         .then(response => {
           this.$q.notify({ message: 'Project has been updated', position: 'top', color: 'secondary' })
@@ -121,6 +123,8 @@ export default {
       this.$axios.get(this.$store.state.hostname + '/projects/' + this.$route.params.id)
         .then(response => {
           this.project = response.data
+          this.tasks = this.project.tasks
+          this.inactive = this.project.inactive
           for (var uu in this.project.users) {
             this.users.push(this.project.users[uu].id)
           }

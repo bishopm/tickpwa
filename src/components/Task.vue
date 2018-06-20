@@ -1,70 +1,28 @@
 <template>
   <div v-if="task" class="layout-padding">
     <h3 class="text-center q-mb-md">Edit task</h3>
-    <form>
-      <q-field class="q-pt-md">
-        <q-input v-model="task.task" value="task.task" float-label="Description" inverted color="secondary"/>
-      </q-field>
-      <q-field class="q-mt-sm">
-        <q-select v-model="users" multiple float-label="Assigned to" color="secondary" inverted :options="userOptions" label="label" track-by="value"/>
-      </q-field>
-      <q-field class="q-mt-sm">
-        <q-datetime inverted color="secondary" float-label="Active from" v-model="task.priority" minimal type="date" />
-      </q-field>
-      <q-field class="q-mt-sm">
-        <q-select v-model="project_id" float-label="Project" inverted color="secondary" :options="projectOptions" label="label" track-by="value"/>
-      </q-field>
-      <div class="text-center q-my-md">
-        <q-btn class="q-mr-md" @click="deleteTask" label="Delete" color="negative"></q-btn>
-        <q-btn class="q-mr-md" @click="updateTask" label="Update" color="positive"></q-btn>
-      </div>
-    </form>
+    <taskform :task="task" :userOptions="userOptions" :users="users" action="edit" :projectOptions="projectOptions" :project_id="project_id"/>
   </div>
 </template>
 
 <script>
+import taskform from './TaskForm'
 export default {
   data () {
     return {
       task: {},
       userOptions: [],
       users: [],
-      projectOptions: [],
-      project_id: 0
+      project_id: 0,
+      projectOptions: []
     }
+  },
+  components: {
+    'taskform': taskform
   },
   methods: {
     addTask () {
       console.log('adding')
-    },
-    updateTask () {
-      this.$axios.post(this.$store.state.hostname + '/tasks/' + this.$route.params.id,
-        {
-          task: this.task.task,
-          project_id: this.project_id,
-          priority: this.task.priority,
-          users: this.users
-        })
-        .then(response => {
-          this.$q.notify({ message: 'Task has been updated', position: 'top', color: 'secondary' })
-          this.$router.go(-1)
-        })
-        .catch(function (error) {
-          console.log(error)
-        })
-    },
-    deleteTask () {
-      this.$axios.post(this.$store.state.hostname + '/deletetask',
-        {
-          id: this.$route.params.id
-        })
-        .then(response => {
-          this.$q.notify({ message: 'Task has been deleted', position: 'top', color: 'secondary' })
-          this.$router.go(-1)
-        })
-        .catch(function (error) {
-          console.log(error)
-        })
     }
   },
   mounted () {
@@ -83,11 +41,11 @@ export default {
       })
     this.$axios.get(this.$store.state.hostname + '/tasks/' + this.$route.params.id)
       .then(response => {
-        this.task = response.data
-        this.project_id = this.task.project_id
-        for (var uu in this.task.users) {
-          this.users.push(this.task.users[uu].id)
+        for (var uu in response.data.users) {
+          this.users.push(response.data.users[uu].id)
         }
+        this.project_id = response.data.project_id
+        this.task = response.data
       })
       .catch(function (error) {
         console.log(error)

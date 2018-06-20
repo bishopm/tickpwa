@@ -5,8 +5,8 @@ Vue.use(Vuex)
 
 const store = new Vuex.Store({
   state: {
-    // hostname: 'http://localhost/tick/public'
-    hostname: 'https://tick.church.net.za/api/public'
+    hostname: 'http://localhost/tick/public'
+    // hostname: 'https://tick.church.net.za/api/public'
   },
   mutations: {
     setUser (state, newuser) {
@@ -14,6 +14,9 @@ const store = new Vuex.Store({
     },
     setIcon (state, newicon) {
       state.icon = newicon
+    },
+    setTeamUsers (state, newteamusers) {
+      state.teamusers = newteamusers
     },
     setToolbar (state, newtoolbar) {
       state.toolbar = newtoolbar

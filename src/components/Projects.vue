@@ -12,27 +12,14 @@
     <q-btn round color="primary" @click="addProject" class="fixed" icon="add" style="right: 18px; bottom: 68px" />
     <q-modal v-model="modal" position="bottom" :content-css="{padding: '20px'}">
       <p class="text-center caption q-mb-md">Add a new project</p>
-      <form>
-        <q-field>
-          <q-input v-model="newp.project" placeholder="Project name" inverted/>
-        </q-field>
-        <q-field class="q-mt-sm">
-          <q-input v-model="newp.description" placeholder="Description" inverted/>
-        </q-field>
-        <q-field class="q-mt-sm">
-          <q-select v-model="users" multiple placeholder="Who can see this project?" inverted :options="userOptions" label="label" track-by="value"/>
-        </q-field>
-      </form>
-      <div class="q-mt-lg text-right">
-        <q-btn class="q-mr-md" color="red" @click="modal = false" label="Cancel" />
-        <q-btn color="green" label="Add" @click="submitProject" />
-      </div>
+      <projectform :project="newp" :userOptions="userOptions" :users="users" @project_added="refreshProjects" action="add"/>
     </q-modal>
   </div>
 </template>
 
 <script>
 import saveState from 'vue-save-state'
+import projectform from './ProjectForm'
 export default {
   data () {
     return {
@@ -42,6 +29,9 @@ export default {
       userOptions: [],
       users: []
     }
+  },
+  components: {
+    'projectform': projectform
   },
   mixins: [saveState],
   methods: {
@@ -54,23 +44,8 @@ export default {
         'saveProperties': ['projects']
       }
     },
-    submitProject () {
-      this.$axios.post(this.$store.state.hostname + '/projects',
-        {
-          project: this.newp.project,
-          description: this.newp.description,
-          users: this.users
-        })
-        .then(response => {
-          this.newp = {}
-          this.modal = false
-          this.refreshProjects()
-        })
-        .catch(function (error) {
-          console.log(error)
-        })
-    },
     refreshProjects () {
+      this.modal = false
       this.$axios.get(this.$store.state.hostname + '/myprojects/' + this.$store.state.user.id)
         .then(response => {
           this.projects = response.data.projects
@@ -82,15 +57,8 @@ export default {
   },
   mounted () {
     this.refreshProjects()
-    this.userOptions.push({ label: this.$store.state.user.username, value: this.$store.state.user.id })
-    for (var ukey in this.$store.state.user.team) {
-      var newitem = {
-        label: this.$store.state.user.team[ukey].username,
-        value: this.$store.state.user.team[ukey].id
-      }
-      this.userOptions.push(newitem)
-      this.users.push(this.$store.state.user.id)
-    }
+    this.userOptions = this.$store.state.teamusers
+    this.users.push(this.$store.state.user.id)
   }
 
 }

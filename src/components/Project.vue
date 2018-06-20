@@ -7,123 +7,50 @@
         <h3 class="text-center">{{project.project}}</h3>
         <div class="text-justify q-px-md"><small>{{project.description}}</small></div>
         <q-list no-border>
-          <q-item v-if="tasks" v-for="task in tasks" :key="task.id">
-            <q-item-main class="text-left">
-              <router-link :to="'/tasks/' + task.id" style="text-decoration:none">{{task.task}}</router-link>
-            </q-item-main>
-            <q-item-side class="text-right">
-              <q-icon @click.native="taskDone(task.id)" size="24px" class="cursor-pointer" :name="task.done === 1 ? 'check_box' : 'check_box_outline_blank'"/>
-            </q-item-side>
-          </q-item>
+          <task v-for="task in project.tasks" :key="task.id" :task="task"></task>
         </q-list>
         <q-btn round color="primary" @click="addTask" class="fixed" icon="add" style="right: 18px; bottom: 68px" />
       </q-tab-pane>
       <q-tab-pane name="edit">
-        <form>
-          <q-field>
-            <q-input float-label="Project name" v-model="project.project" inverted color="secondary"/>
-          </q-field>
-          <q-field class="q-mt-sm">
-            <q-input v-model="project.description" float-label="Description" inverted color="secondary"/>
-          </q-field>
-          <q-field class="q-mt-sm">
-            <q-select v-model="users" multiple float-label="Who can see this project?" inverted color="secondary" :options="userOptions" label="label" track-by="value"/>
-          </q-field>
-          <q-field class="q-mt-sm">
-            <q-select v-model="inactive" float-label="Project status" inverted :options="activeOptions" color="secondary" label="label" track-by="value"/>
-          </q-field>
-          <div class="text-center q-my-md">
-            <q-btn class="q-mr-md" label="Delete" color="negative"></q-btn>
-            <q-btn class="q-mr-md" @click="updateProject" label="Update" color="positive"></q-btn>
-          </div>
-        </form>
+        <projectform @project_added="refreshProject" :project="project" :userOptions="userOptions" :users="users" action="edit"/>
       </q-tab-pane>
       <q-modal v-model="modal" position="bottom" :content-css="{padding: '20px'}">
         <p class="text-center caption q-mb-md">Add a task to this project</p>
-        <form>
-          <q-field>
-            <q-input v-model="newt.task" placeholder="Description" inverted/>
-          </q-field>
-          <q-field class="q-mt-sm">
-            <q-select v-model="users" multiple placeholder="Assigned to" inverted :options="userOptions" label="label" track-by="value"/>
-          </q-field>
-          <q-field class="q-mt-sm">
-            <q-datetime inverted v-model="newt.priority" minimal type="date" />
-          </q-field>
-        </form>
-        <div class="q-mt-lg text-right">
-          <q-btn class="q-mr-md" color="negative" @click="modal = false" label="Cancel" />
-          <q-btn color="positive" label="Add" @click="submitTask" />
-        </div>
+        <taskform :task="newt" :userOptions="userOptions" :users="users" action="add" :projectOptions="projectOptions" :project_id="project.id"/>
       </q-modal>
     </q-tabs>
   </div>
 </template>
 
 <script>
+import projectform from './ProjectForm'
+import task from './ShowTask'
+import taskform from './TaskForm'
 export default {
   data () {
     return {
       project: {},
-      tasks: [],
       newt: {},
       userOptions: [],
-      activeOptions: [{ label: 'Active', value: 0 }, { label: 'Inactive', value: 1 }],
       users: [],
       inactive: 0,
+      projectOptions: [],
       modal: false
     }
+  },
+  components: {
+    'projectform': projectform,
+    'task': task,
+    'taskform': taskform
   },
   methods: {
     addTask () {
       this.modal = true
     },
-    taskDone (id) {
-      this.$axios.get(this.$store.state.hostname + '/tasks/' + id + '/toggle')
-        .then(response => {
-          this.refreshProject()
-        })
-        .catch(function (error) {
-          console.log(error)
-        })
-    },
-    submitTask () {
-      this.$axios.post(this.$store.state.hostname + '/tasks',
-        {
-          task: this.newt.task,
-          project_id: this.$route.params.id,
-          priority: this.newt.priority,
-          users: this.users
-        })
-        .then(response => {
-          this.newt = {}
-          this.modal = false
-          this.refreshTasks()
-        })
-        .catch(function (error) {
-          console.log(error)
-        })
-    },
-    updateProject () {
-      this.$axios.post(this.$store.state.hostname + '/projects/' + this.$route.params.id,
-        {
-          project: this.project.project,
-          description: this.project.description,
-          users: this.users,
-          inactive: this.inactive
-        })
-        .then(response => {
-          this.$q.notify({ message: 'Project has been updated', position: 'top', color: 'secondary' })
-        })
-        .catch(function (error) {
-          console.log(error)
-        })
-    },
     refreshProject () {
       this.$axios.get(this.$store.state.hostname + '/projects/' + this.$route.params.id)
         .then(response => {
           this.project = response.data
-          this.tasks = this.project.tasks
           this.inactive = this.project.inactive
           for (var uu in this.project.users) {
             this.users.push(this.project.users[uu].id)
@@ -135,16 +62,21 @@ export default {
     }
   },
   mounted () {
+    this.userOptions = this.$store.state.teamusers
+    this.$axios.get(this.$store.state.hostname + '/myprojects/' + this.$store.state.user.id)
+      .then(response => {
+        for (var pkey in response.data.projects) {
+          var newitem = {
+            label: response.data.projects[pkey].project,
+            value: response.data.projects[pkey].id
+          }
+          this.projectOptions.push(newitem)
+        }
+      })
+      .catch(function (error) {
+        console.log(error)
+      })
     this.refreshProject()
-    this.userOptions.push({ label: this.$store.state.user.username, value: this.$store.state.user.id })
-    for (var ukey in this.$store.state.user.team) {
-      var newitem = {
-        label: this.$store.state.user.team[ukey].username,
-        value: this.$store.state.user.team[ukey].id
-      }
-      this.userOptions.push(newitem)
-      this.users.push(this.$store.state.user.id)
-    }
   }
 
 }

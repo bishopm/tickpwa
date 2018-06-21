@@ -8,7 +8,7 @@
     <q-btn round color="primary" @click="addTask" class="fixed" icon="add" style="right: 18px; bottom: 68px" />
     <q-modal v-model="modal" position="bottom" :content-css="{padding: '20px'}">
       <p class="text-center caption q-mb-md">Add a new task</p>
-      <taskform :task="newt" :userOptions="userOptions" :users="users" action="add" :projectOptions="projectOptions" :project_id="0"/>
+      <taskform @task_added="refreshTasks" :task="newt" :userOptions="userOptions" :users="users" action="add" :projectOptions="projectOptions" :project_id="0"/>
     </q-modal>
   </div>
 </template>
@@ -44,6 +44,7 @@ export default {
       }
     },
     refreshTasks () {
+      this.modal = false
       this.$axios.get(this.$store.state.hostname + '/mytasks/' + this.$store.state.user.id)
         .then(response => {
           this.tasks = response.data.activetasks

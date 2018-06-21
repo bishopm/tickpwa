@@ -14,7 +14,7 @@
     </q-field>
     <div class="text-center q-my-md">
       <q-btn v-if="action === 'edit'" class="q-mr-md" label="Delete" color="negative"></q-btn>
-      <q-btn v-else class="q-mr-md" color="negative" label="Cancel" />
+      <q-btn v-else class="q-mr-md" @click="$emit('project_added')" color="negative" label="Cancel" />
       <q-btn v-if="action === 'edit'" class="q-mr-md" @click="updateProject" label="Update" color="positive"></q-btn>
       <q-btn v-else color="positive" label="Add" @click="submitProject" />
     </div>

@@ -12,11 +12,11 @@
         <q-btn round color="primary" @click="addTask" class="fixed" icon="add" style="right: 18px; bottom: 68px" />
       </q-tab-pane>
       <q-tab-pane name="edit">
-        <projectform @project_added="refreshProject" :project="project" :userOptions="userOptions" :users="users" action="edit"/>
+        <projectform @project_added="refreshProject" :project="project" :users="users" :userOptions="userOptions" action="edit"/>
       </q-tab-pane>
       <q-modal v-model="modal" position="bottom" :content-css="{padding: '20px'}">
         <p class="text-center caption q-mb-md">Add a task to this project</p>
-        <taskform :task="newt" :userOptions="userOptions" :users="users" action="add" :projectOptions="projectOptions" :project_id="project.id"/>
+        <taskform @task_added="refreshProject" :task="newt" :userOptions="userOptions" :users="users" action="add" :projectOptions="projectOptions" :project_id="project.id"/>
       </q-modal>
     </q-tabs>
   </div>
@@ -48,9 +48,12 @@ export default {
       this.modal = true
     },
     refreshProject () {
+      this.modal = false
       this.$axios.get(this.$store.state.hostname + '/projects/' + this.$route.params.id)
         .then(response => {
           this.project = response.data
+          this.newt.project_id = this.project.id
+          this.newt.priority = new Date().toISOString().substr(0, 10)
           this.inactive = this.project.inactive
           for (var uu in this.project.users) {
             this.users.push(this.project.users[uu].id)

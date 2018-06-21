@@ -14,7 +14,7 @@
     </q-field>
     <div class="text-center q-my-md">
       <q-btn v-if="action === 'edit'" class="q-mr-md" @click="deleteTask" label="Delete" color="negative"/>
-      <q-btn v-else class="q-mr-md" color="negative" label="Cancel" />
+      <q-btn v-else class="q-mr-md" color="negative" @click="$emit('task_added')" label="Cancel" />
       <q-btn v-if="action === 'edit'" class="q-mr-md" @click="updateTask" label="Update" color="secondary"/>
       <q-btn v-else color="secondary" label="Add" @click="submitTask" />
     </div>

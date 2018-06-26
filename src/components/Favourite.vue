@@ -1,29 +1,19 @@
 <template>
   <div v-if="project">
-    <q-tabs no-pane-border color="tertiary">
-      <q-tab default slot="title" name="show" label="View project" icon="list" />
-      <q-tab slot="title" name="edit" label="Edit project" icon="edit" />
-      <q-tab-pane name="show">
-        <h3 class="text-center">{{project.project}}</h3>
-        <div class="text-justify q-px-md"><small>{{project.description}}</small></div>
-        <q-list no-border>
-          <task v-for="task in project.tasks" :key="task.id" :task="task"></task>
-        </q-list>
-        <q-btn round color="secondary" @click="addTask" class="fixed" icon="add" style="right: 18px; top: 130px" />
-      </q-tab-pane>
-      <q-tab-pane name="edit">
-        <projectform @project_added="refreshProject" :project="project" :users="users" :userOptions="userOptions" action="edit"/>
-      </q-tab-pane>
-      <q-modal v-model="modal" position="bottom" :content-css="{padding: '20px'}">
-        <p class="text-center caption q-mb-md">Add a task to this project</p>
-        <taskform @task_added="refreshProject" :task="newt" :userOptions="userOptions" :users="users" action="add" :projectOptions="projectOptions" :project_id="project.id"/>
-      </q-modal>
-    </q-tabs>
+    <h3 class="text-center">{{project.project}}</h3>
+    <div class="text-justify q-px-md"><small>{{project.description}}</small></div>
+    <q-list no-border>
+      <task v-for="task in project.tasks" :key="task.id" :task="task"></task>
+    </q-list>
+    <q-btn round color="secondary" @click="addTask" class="fixed" icon="add" style="right: 18px; top: 60px" />
+    <q-modal v-model="modal" position="bottom" :content-css="{padding: '20px'}">
+      <p class="text-center caption q-mb-md">Add a task to this project</p>
+      <taskform @task_added="refreshProject" :task="newt" :userOptions="userOptions" :users="users" action="add" :projectOptions="projectOptions" :project_id="project.id"/>
+    </q-modal>
   </div>
 </template>
 
 <script>
-import projectform from './ProjectForm'
 import task from './ShowTask'
 import taskform from './TaskForm'
 export default {
@@ -38,7 +28,6 @@ export default {
     }
   },
   components: {
-    'projectform': projectform,
     'task': task,
     'taskform': taskform
   },
@@ -48,7 +37,7 @@ export default {
     },
     refreshProject () {
       this.modal = false
-      this.$axios.get(this.$store.state.hostname + '/projects/' + this.$route.params.id)
+      this.$axios.get(this.$store.state.hostname + '/projects/' + this.$store.state.toolbar)
         .then(response => {
           this.project = response.data
           this.newt.project_id = this.project.id

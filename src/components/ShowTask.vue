@@ -4,7 +4,7 @@
       <router-link :to="'/tasks/' + task.id" style="text-decoration:none">{{task.task}}</router-link>
     </q-item-main>
     <q-item-side class="text-right">
-      <q-checkbox @click.native="taskDone(task.id)" :true-value="1" :false-value="0" color="primary" v-model="task.done" />
+      <q-checkbox @click.native="taskDone(task.id)" true-value="yes" false-value="no" color="primary" v-model="task.done" />
     </q-item-side>
   </q-item>
 </template>
@@ -19,7 +19,13 @@ export default {
     taskDone (id) {
       this.$axios.get(this.$store.state.hostname + '/tasks/' + id + '/toggle')
         .then(response => {
-          console.log('Toggled')
+          if (this.$store.state.deletes === 'true') {
+            this.$axios.post(this.$store.state.hostname + '/deletetask',
+              {
+                id: this.task.id
+              })
+            this.$emit('task_added')
+          }
         })
         .catch(function (error) {
           console.log(error)
@@ -30,4 +36,7 @@ export default {
 </script>
 
 <style>
+.q-checkbox-icon {
+  opacity: 1;
+}
 </style>

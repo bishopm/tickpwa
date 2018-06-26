@@ -28,10 +28,10 @@ export default {
   mounted () {
     this.$axios.get(this.$store.state.hostname + '/myprojects/' + this.$store.state.user.id)
       .then(response => {
-        for (var pkey in response.data.projects) {
+        for (var pkey in response.data.activeprojects) {
           var newitem = {
-            label: response.data.projects[pkey].project,
-            value: response.data.projects[pkey].id
+            label: response.data.activeprojects[pkey].project,
+            value: response.data.activeprojects[pkey].id
           }
           this.projectOptions.push(newitem)
         }

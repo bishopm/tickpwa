@@ -20,6 +20,9 @@ const store = new Vuex.Store({
     },
     setToolbar (state, newtoolbar) {
       state.toolbar = newtoolbar
+    },
+    setDeletes (state, newdeletes) {
+      state.deletes = newdeletes
     }
   }
 })

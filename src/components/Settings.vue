@@ -7,6 +7,9 @@
     <q-field v-if="project">
       <q-select v-model="icon" @input="setIcon" float-label="Project icon" inverted color="secondary" :options="iconOptions" label="label" track-by="value"/>
     </q-field>
+    <div class="q-my-lg caption text-center">When tasks are completed:
+      <q-btn-toggle @input="setDeletes" class="q-mt-md" v-model="deletes" toggle-color="secondary" :options="[{label: 'Delete them', value: true}, {label: 'Leave them', value: false}]"></q-btn-toggle>
+    </div>
     <div v-if="user.team" class="q-mt-md">
       <div class="caption text-center">Team members</div>
       <p class="q-my-md text-center" v-for="user in user.team" :key="user.id">
@@ -23,6 +26,7 @@ export default {
       user: {},
       settings: {},
       project: 0,
+      deletes: '',
       icon: '',
       projectOptions: [],
       iconOptions: []
@@ -36,16 +40,25 @@ export default {
     setIcon () {
       localStorage.setItem('Tick_Icon', this.icon)
       this.$store.commit('setIcon', localStorage.getItem('Tick_Toolbar'))
+    },
+    setDeletes () {
+      localStorage.setItem('Tick_Deletes', this.deletes)
+      this.$store.commit('setDeletes', localStorage.getItem('Tick_Deletes'))
     }
   },
   mounted () {
     this.user = this.$store.state.user
+    if (this.$store.state.deletes === 'true') {
+      this.deletes = true
+    } else {
+      this.deletes = false
+    }
     this.$axios.get(this.$store.state.hostname + '/myprojects/' + this.user.id)
       .then(response => {
-        for (var pkey in response.data.projects) {
+        for (var pkey in response.data.activeprojects) {
           var newitem = {
-            label: response.data.projects[pkey].project,
-            value: response.data.projects[pkey].id
+            label: response.data.activeprojects[pkey].project,
+            value: response.data.activeprojects[pkey].id
           }
           this.projectOptions.push(newitem)
           if (this.$store.state.toolbar) {

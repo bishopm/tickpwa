@@ -21,6 +21,10 @@
           <q-item-side icon="folder" />
           <q-item-main label="Some day" sublabel="inactive projects" />
         </q-item>
+        <q-item to="/unallocated">
+          <q-item-side icon="help_outline" />
+          <q-item-main label="Unallocated" sublabel="tasks not assigned to a project" />
+        </q-item>
       </q-list>
     </q-layout-drawer>
     <q-page-container>
@@ -34,7 +38,7 @@
         <q-item class="col text-center bottomitem" to="/allprojects">
           <q-item-side icon="list" color="white"/>
         </q-item>
-        <q-item class="col text-center bottomitem" v-if="toolbar" :to="toolbar">
+        <q-item class="col text-center bottomitem" v-if="toolbar" to="/favourite">
           <q-item-side :icon="icon" color="white"/>
         </q-item>
       </q-toolbar>

@@ -10,7 +10,7 @@
       <q-select v-model="users" multiple float-label="Who can see this project?" inverted color="secondary" :options="userOptions" label="label" track-by="value"/>
     </q-field>
     <q-field class="q-mt-sm">
-      <q-select v-if="action === 'edit'" v-model="project.inactive" float-label="Project status" inverted :options="activeOptions" color="secondary" label="label" track-by="value"/>
+      <q-select v-model="project.inactive" float-label="Project status" inverted :options="activeOptions" true-value="yes" false-value="no" color="secondary" label="label" track-by="value"/>
     </q-field>
     <div class="text-center q-my-md">
       <q-btn v-if="action === 'edit'" class="q-mr-md" label="Delete" color="negative"></q-btn>
@@ -23,11 +23,10 @@
 
 <script>
 export default {
-  props: ['project', 'userOptions', 'action'],
+  props: ['project', 'userOptions', 'action', 'users'],
   data () {
     return {
-      activeOptions: [{ label: 'Active', value: 0 }, { label: 'Inactive', value: 1 }],
-      users: []
+      activeOptions: [{ label: 'Active', value: 'no' }, { label: 'Inactive', value: 'yes' }]
     }
   },
   created () {
@@ -41,7 +40,8 @@ export default {
         {
           project: this.project.project,
           description: this.project.description,
-          users: this.users
+          users: this.users,
+          inactive: 'no'
         })
         .then(response => {
           this.$q.notify({ message: 'Project has been added', position: 'top', color: 'secondary' })

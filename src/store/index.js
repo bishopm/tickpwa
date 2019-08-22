@@ -5,8 +5,8 @@ Vue.use(Vuex)
 
 const store = new Vuex.Store({
   state: {
-    // hostname: 'http://localhost/tick/public'
-    hostname: 'https://tick.church.net.za/api/public'
+    hostname: 'http://localhost/tick/public'
+    // hostname: 'https://tick.bishop.net.za/api/public'
   },
   mutations: {
     setUser (state, newuser) {
